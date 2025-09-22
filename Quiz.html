@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Schlangen-Quiz — 10 Fakten</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#2f4f2f; /* dunkles grün */
+    --bg2:#5a442b; /* bräunlich */
+    --accent:#9dbf6f; /* hellgrün */
+    --card:#f8f7f3;
+    --correct:#2e7d32;
+    --wrong:#c62828;
+    --muted:#6b6b6b;
+    --glass: rgba(255,255,255,0.06);
+  }
+
+  /* dezentes Schlangenhaut-Muster mit CSS gradients */
+  body{
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(40px 18px at 10% 10%, rgba(0,0,0,0.02) 10%, transparent 11%),
+      repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0 6px, transparent 6px 12px),
+      linear-gradient(135deg, var(--bg2), var(--bg1));
+    color:#222;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:900px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.92));
+    border-radius:14px;
+    box-shadow: 0 10px 30px rgba(15,15,15,0.25);
+    overflow:hidden;
+  }
+
+  header{
+    padding:20px 28px;
+    display:flex;
+    gap:16px;
+    align-items:center;
+    background: linear-gradient(90deg, rgba(157,191,111,0.12), rgba(90,68,43,0.06));
+    border-bottom:1px solid rgba(0,0,0,0.05);
+  }
+
+  .logo{
+    width:64px;
+    height:64px;
+    border-radius:10px;
+    background: conic-gradient(from 180deg at 50% 50%, #8aa65a 0deg, #6a8c3f 90deg, #6b5236 180deg, #8aa65a 270deg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    color:white;
+    box-shadow: inset 0 -6px 12px rgba(0,0,0,0.12);
+  }
+
+  h1{font-size:20px;margin:0}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+
+  main{
+    padding:22px 28px 34px 28px;
+  }
+
+  .progressbar{
+    height:12px;
+    width:100%;
+    background:rgba(0,0,0,0.06);
+    border-radius:8px;
+    overflow:hidden;
+    margin:14px 0 22px 0;
+  }
+  .progressbar > i{
+    display:block;
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, var(--accent), #7aa24d);
+    border-radius:8px;
+    transition:width .45s ease;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:10px;
+    padding:18px;
+    box-shadow: 0 6px 18px rgba(9,9,9,0.06);
+    margin-bottom:16px;
+  }
+
+  .question{
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .qnum{
+    min-width:44px;height:44px;border-radius:8px;
+    background:linear-gradient(180deg,#e9f6d7,#d7e9b7);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#254517;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+  }
+
+  .qtext{font-weight:600}
+
+  .options{
+    margin-top:12px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .option{
+    padding:12px;
+    border-radius:8px;
+    background:var(--glass);
+    border:1px solid rgba(0,0,0,0.06);
+    cursor:pointer;
+    user-select:none;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .option:hover{transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.06);}
+
+  .option.correct{border-color: rgba(46,125,50,0.4); background:linear-gradient(180deg, rgba(46,125,50,0.06), rgba(46,125,50,0.03));}
+  .option.wrong{border-color: rgba(198,40,40,0.25); background:linear-gradient(180deg, rgba(198,40,40,0.04), rgba(198,40,40,0.02)); opacity:0.9;}
+
+  .explain{margin-top:12px;font-size:13px;color:#37474f}
+
+  .controls{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-top:16px;
+  }
+
+  button{
+    border:0;
+    padding:10px 14px;
+    border-radius:10px;
+    background:var(--accent);
+    color:#123112;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow: 0 6px 16px rgba(20,66,20,0.08);
+  }
+  button.secondary{
+    background:transparent;
+    border:1px solid rgba(0,0,0,0.06);
+    color:#123;
+    box-shadow:none;
+    font-weight:600;
+  }
+
+  .result{
+    text-align:center;
+    padding:18px;
+  }
+  .score{
+    font-size:40px;
+    font-weight:700;
+    margin:4px 0;
+    color:var(--accent);
+  }
+
+  footer{
+    padding:12px 18px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.03));
+    text-align:center;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  /* responsive */
+  @media (max-width:700px){
+    .options{grid-template-columns:1fr;}
+    header{flex-direction:column;align-items:flex-start;gap:8px}
+  }
+
+</style>
+</head>
+<body>
+  <div class="wrap" role="application" aria-labelledby="title">
+    <header>
+      <div class="logo" aria-hidden="true">S</div>
+      <div>
+        <h1 id="title">Schlangen-Quiz — 10 Fakten</h1>
+        <p class="lead">Teste dein Wissen mit 10 Multiple-Choice Fragen. Direkte Rückmeldung & Erklärungen.</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="progressbar" aria-hidden="true"><i id="progress"></i></div>
+
+      <section class="card" id="quizCard" aria-live="polite">
+        <!-- Dynamisch befüllt -->
+      </section>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="controls" id="controls">
+          <button id="nextBtn" class="secondary" style="display:none">Nächste Frage →</button>
+          <button id="restartBtn" style="display:none">Neu starten</button>
+        </div>
+        <div id="status" style="color:var(--muted);font-weight:600;font-size:14px">Frage <span id="cur">1</span> / 10</div>
+      </div>
+    </main>
+
+    <footer>
+      Sachlich & korrekt — basierend auf den bereitgestellten Fakten.
+    </footer>
+  </div>
+
+<script>
+  // Fragen (deutsche Formulierungen) — basierend auf den übergebenen Facts
+  const questions = [
+    {
+      q: "1) Wie viele Schlangenarten wurden laut der neuesten Zählung ungefähr identifiziert?",
+      choices: ["~380 Arten", "~3.789 Arten", "~37.890 Arten", "~378 Arten"],
+      answer: 1,
+      explain: "Aktueller Zählstand: ungefähr 3.789 Arten — Schlangen sind nach den Echsen die zweitgrößte Gruppe von Reptilien."
+    },
+    {
+      q: "2) Auf welchen Kontinenten kommen Schlangen vor?",
+      choices: ["Nur in den Tropen", "Auf allen Kontinenten außer Antarktika", "Nur in Afrika und Südamerika", "Nur in wärmeren Klimazonen"],
+      answer: 1,
+      explain: "Schlangen leben auf allen Kontinenten außer in der Antarktis — sogar nördlich des Polarkreises existieren einige Arten."
+    },
+    {
+      q: "3) Wo in Kanada gibt es die weltweit größte Ansammlung von Schlangen (z. B. Rotstreifen-Garter-Schlangen)?",
+      choices: ["Ontario", "Manitoba", "Quebec", "Nova Scotia"],
+      answer: 1,
+      explain: "In der Provinz Manitoba finden sich riesige Paarungs-versammlungen der Rotstreifen-Garter-Schlange — manchmal zehntausende Tiere."
+    },
+    {
+      q: "4) Geben alle Schlangen Eier?",
+      choices: ["Ja, alle legen Eier", "Nein — etwa 70% legen Eier, andere bringen lebende Junge", "Nur Giftschlangen legen Eier", "Nur Würgeschlangen bringen lebende Junge"],
+      answer: 1,
+      explain: "Ungefähr 70% der Arten legen Eier; in kälteren Regionen haben viele Arten lebende Geburten entwickelt, weil Eier draußen nicht überleben würden."
+    },
+    {
+      q: "5) Haben Schlangen Augenlider (blinzeln sie)?",
+      choices: ["Ja, sie blinzeln wie Menschen", "Nein, sie haben keine Augenlider, sondern eine Schutzmembran ('Brille')", "Nur tagsüber", "Nur nachts"],
+      answer: 1,
+      explain: "Schlangen besitzen keine Augenlider; stattdessen schützt eine transparente Membran (die ‚Brille‘) das Auge — deshalb blinzeln sie nicht."
+    },
+    {
+      q: "6) Womit 'riechen' Schlangen hauptsächlich?",
+      choices: ["Mit der Nase (Nasenlöcher)", "Mit der Zunge und dem Jacobson-Organ", "Mit ihren Schuppen", "Mit ihren Augen"],
+      answer: 1,
+      explain: "Schlangen verwenden ihre gespaltene Zunge und das Jacobson-Organ im Gaumen, um chemische Signale aufzunehmen — man spricht von 'stereoskopischem Riechen'."
+    },
+    {
+      q: "7) Wie nehmen Schlangen ihre Nahrung auf?",
+      choices: ["Sie kauen wie Säugetiere", "Sie würgen ihre Beute in Stücke", "Sie schlucken ihre Beute ganz dank flexibler Kiefer", "Sie saugen ihre Nahrung auf"],
+      answer: 2,
+      explain: "Schlangen haben sehr dehnbare Unterkiefer und schlucken ihre Beute ganz; die Verdauungssäfte machen den Rest."
+    },
+    {
+      q: "8) Woraus besteht die Haut der Schlange (ähnlich wie bei menschlichen Nägeln)?",
+      choices: ["Keratin — wie Nägel und Haare", "Chitin — wie bei Insekten", "Cellulose", "Leinenfasern"],
+      answer: 0,
+      explain: "Schlangenhaut besteht aus Keratin, dem gleichen Protein wie unsere Fingernägel und Haare. Sie häuten sich regelmäßig."
+    },
+    {
+      q: "9) Wie viele verschiedene Fortbewegungsarten besitzen Schlangen ungefähr?",
+      choices: ["Nur eine (S-förmig)", "Drei", "Fünf", "Zehn"],
+      answer: 2,
+      explain: "Schlangen nutzen fünf Hauptformen der Fortbewegung: u.a. laterale Wellen (S-Bewegung), concertina, slide-pushing, rectilinear und sidewinding."
+    },
+    {
+      q: "10) Wie regulieren Schlangen ihre Körpertemperatur?",
+      choices: ["Sie sind warmblütig und erzeugen eigene Wärme", "Sie sind 'solar-betrieben' bzw. ektotherm und brauchen externe Wärmequellen", "Ihre Körpertemperatur ist konstant wie bei Vögeln", "Sie nutzen ein internes Heizsystem"],
+      answer: 1,
+      explain: "Schlangen sind ektotherm — sie regulieren Temperatur durch Sonne, Wärmequellen und Verhalten (z. B. Sonnenbäder)."
+    }
+  ];
+
+  let current = 0;
+  let score = 0;
+  const total = questions.length;
+
+  const quizCard = document.getElementById('quizCard');
+  const progress = document.getElementById('progress');
+  const cur = document.getElementById('cur');
+  const nextBtn = document.getElementById('nextBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const status = document.getElementById('status');
+
+  function renderQuestion(){
+    const item = questions[current];
+    cur.textContent = current+1;
+    const perc = Math.round((current)/total*100);
+    progress.style.width = perc + '%';
+
+    quizCard.innerHTML = `
+      <div class="question">
+        <div class="qnum" aria-hidden="true">${current+1}</div>
+        <div>
+          <div class="qtext">${item.q}</div>
+        </div>
+      </div>
+      <div class="options" role="list" aria-label="Antworten"></div>
+      <div class="explain" id="explain" style="display:none"></div>
+    `;
+
+    const optionsWrap = quizCard.querySelector('.options');
+    item.choices.forEach((c,i)=>{
+      const btn = document.createElement('div');
+      btn.className = 'option';
+      btn.setAttribute('role','button');
+      btn.setAttribute('tabindex','0');
+      btn.dataset.idx = i;
+      btn.innerText = c;
+      btn.addEventListener('click', onSelect);
+      btn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') onSelect.call(btn,e); });
+      optionsWrap.appendChild(btn);
+    });
+
+    nextBtn.style.display = 'none';
+    restartBtn.style.display = 'none';
+    status.textContent = `Frage ${current+1} / ${total}`;
+  }
+
+  function onSelect(e){
+    const selected = this;
+    const chIdx = Number(selected.dataset.idx);
+    const correctIdx = questions[current].answer;
+
+    // disable further clicks
+    const all = quizCard.querySelectorAll('.option');
+    all.forEach(o => { o.style.pointerEvents = 'none'; });
+
+    if(chIdx === correctIdx){
+      selected.classList.add('correct');
+      score++;
+    } else {
+      selected.classList.add('wrong');
+      // highlight correct
+      const corr = [...all].find(x=> Number(x.dataset.idx) === correctIdx);
+      if(corr) corr.classList.add('correct');
+    }
+
+    // show explanation
+    const expl = document.getElementById('explain');
+    expl.style.display = 'block';
+    expl.textContent = questions[current].explain;
+
+    // show next or finish
+    if(current < total - 1){
+      nextBtn.style.display = 'inline-block';
+    } else {
+      restartBtn.style.display = 'inline-block';
+      // show final summary inside card after a small delay for effect
+      setTimeout(showResult, 250);
+    }
+  }
+
+  nextBtn.addEventListener('click', ()=>{
+    current++;
+    renderQuestion();
+  });
+
+  restartBtn.addEventListener('click', ()=>{
+    current = 0; score = 0;
+    renderQuestion();
+    // reset progress bar to 0
+    progress.style.width = '0%';
+  });
+
+  function showResult(){
+    // fill progress bar to 100%
+    progress.style.width = '100%';
+
+    const percent = Math.round((score/total)*100);
+    let message = "Gut gemacht.";
+    if(percent === 100) message = "Perfekt — alle Antworten korrekt!";
+    else if(percent >= 80) message = "Sehr gut!";
+    else if(percent >= 50) message = "Ganz ordentlich.";
+    else message = "Mehr Übung empfohlen.";
+
+    quizCard.innerHTML = `
+      <div class="result">
+        <div style="font-size:15px;color:var(--muted)">Auswertung</div>
+        <div class="score">${score} / ${total} <span style="font-size:16px;color:#444">(${percent}%)</span></div>
+        <div style="margin-top:8px;font-weight:600;color:#333">${message}</div>
+        <div style="margin-top:12px;font-size:13px;color:var(--muted)">Du kannst das Quiz neu starten, um es erneut zu versuchen.</div>
+        <div style="margin-top:16px;text-align:center">
+          <button id="reviewBtn" class="secondary">Fragen & Erklärungen anzeigen</button>
+          <button id="againBtn" style="margin-left:10px">Nochmals spielen</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('againBtn').addEventListener('click', ()=>{
+      current = 0; score = 0;
+      progress.style.width = '0%';
+      renderQuestion();
+    });
+
+    document.getElementById('reviewBtn').addEventListener('click', ()=>{
+      showReview();
+    });
+
+    restartBtn.style.display = 'inline-block';
+  }
+
+  function showReview(){
+    // show all questions with correct answers + explanations
+    const list = questions.map((it, idx)=>{
+      const correct = it.choices[it.answer];
+      return `
+        <div class="card" style="margin-bottom:10px">
+          <div style="font-weight:700">Frage ${idx+1}: ${it.q}</div>
+          <div style="margin-top:8px">Richtige Antwort: <strong>${correct}</strong></div>
+          <div style="margin-top:8px;color:#333">${it.explain}</div>
+        </div>
+      `;
+    }).join('');
+    quizCard.innerHTML = `<div style="max-height:60vh;overflow:auto;padding-right:8px">${list}</div>`;
+    restartBtn.style.display = 'inline-block';
+    nextBtn.style.display = 'none';
+  }
+
+  // initial render
+  renderQuestion();
+
+  // keyboard: N key -> next if available
+  document.addEventListener('keydown', (e)=>{
+    if(e.key.toLowerCase() === 'n' && nextBtn.style.display !== 'none'){
+      nextBtn.click();
+    }
+  });
+
+</script>
+</body>
+</html>
